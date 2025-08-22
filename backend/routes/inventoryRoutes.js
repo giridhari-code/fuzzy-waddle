@@ -1,6 +1,7 @@
 const express = require('express');
 const router = express.Router();
 const Inventory = require('../models/Inventory');
+const InventoryTrend = require('../models/InventoryTrend');
 const { protect } = require('../middleware/authMiddleware');
 
 // @route   GET /api/inventory
@@ -9,7 +10,6 @@ const { protect } = require('../middleware/authMiddleware');
 router.get('/', protect, async (req, res) => {
   try {
     const inventory = await Inventory.find({ user: req.user.id })
-      // Populating with correct field names from the model
       .populate('product_id', 'name sku')
       .populate('warehouse_id', 'name code');
     res.json(inventory);
@@ -18,11 +18,49 @@ router.get('/', protect, async (req, res) => {
   }
 });
 
+// @route   GET /api/inventory/trends
+// @desc    Get monthly stock trends for the authenticated user
+// @access  Private
+router.get('/trends', protect, async (req, res) => {
+    try {
+        // ✅ Debugging: Check if user ID is being received
+        console.log('Fetching inventory trends for user ID:', req.user.id);
+
+        const trends = await InventoryTrend.find({ user: req.user.id }).sort({ year: 1, month: 1 }).limit(12);
+
+        // ✅ Debugging: Check the raw data from the database
+        console.log('Raw data from database:', trends);
+
+        // Agar database se data nahi milta, to empty array return karen
+        if (trends.length === 0) {
+             console.log('No trends data found for this user.');
+             return res.status(200).json([]);
+        }
+
+        // Frontend chart ke liye data format karen
+        const formattedTrends = trends.map(trend => {
+            const date = new Date(trend.year, trend.month - 1);
+            return {
+                name: date.toLocaleString('default', { month: 'short' }),
+                stockIn: trend.stockIn,
+                stockOut: trend.stockOut,
+            };
+        });
+
+        // ✅ Debugging: Check the formatted data
+        console.log('Formatted trends data:', formattedTrends);
+
+        res.status(200).json(formattedTrends);
+    } catch (error) {
+        console.error('Error fetching inventory trends:', error);
+        res.status(500).json({ message: 'Server error', error: error.message });
+    }
+});
+
 // @route   POST /api/inventory
 // @desc    Add a new inventory record
 // @access  Private
 router.post('/', protect, async (req, res) => {
-  // Using product_id, warehouse_id, and quantity to match the model
   const { product_id, warehouse_id, quantity } = req.body;
   try {
     const newInventory = new Inventory({
@@ -32,7 +70,6 @@ router.post('/', protect, async (req, res) => {
       user: req.user.id,
     });
     const savedInventory = await newInventory.save();
-    // Populate the saved record to return full details
     const populatedInventory = await savedInventory
       .populate('product_id', 'name sku')
       .populate('warehouse_id', 'name code');
@@ -42,7 +79,6 @@ router.post('/', protect, async (req, res) => {
       const errors = Object.values(err.errors).map(val => val.message);
       return res.status(400).json({ message: 'Validation failed', errors });
     }
-    // Duplicate key error for product and warehouse
     if (err.code === 11000) {
       return res.status(400).json({ message: 'Validation failed', errors: ['An inventory record for this product in this warehouse already exists.'] });
     }
@@ -54,7 +90,6 @@ router.post('/', protect, async (req, res) => {
 // @desc    Update an inventory record
 // @access  Private
 router.put('/:id', protect, async (req, res) => {
-  // Using quantity to match the model
   const { quantity } = req.body;
   try {
     const inventory = await Inventory.findById(req.params.id);
@@ -65,7 +100,6 @@ router.put('/:id', protect, async (req, res) => {
       return res.status(401).json({ message: 'Not authorized' });
     }
 
-    // Using inventory.quantity to update
     inventory.quantity = quantity !== undefined ? quantity : inventory.quantity;
     const updatedInventory = await inventory.save();
     res.json(updatedInventory);

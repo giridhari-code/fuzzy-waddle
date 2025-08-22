@@ -6,6 +6,8 @@ import axios from "axios";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Footer from "@/components/Footer";
+import Navbar from "@/components/Navbar";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -45,6 +47,8 @@ export default function LoginPage() {
   };
 
   return (
+    <>
+    <Navbar />
     <div className="min-h-screen flex items-center justify-center bg-gray-50 px-4">
       <Card className="w-full max-w-md">
         <CardHeader>
@@ -88,5 +92,7 @@ export default function LoginPage() {
         </CardContent>
       </Card>
     </div>
+    <Footer />
+    </>
   );
 }

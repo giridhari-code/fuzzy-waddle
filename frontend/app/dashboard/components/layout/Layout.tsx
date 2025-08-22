@@ -1,14 +1,15 @@
-import { Sidebar } from "./Sidebar";
-import { Topbar } from "./Topbar";
+import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar"
+import { AppSidebar } from "./Sidebar"
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
-    <div className="flex min-h-screen bg-gray-100">
-      <Sidebar />
-      <div className="flex flex-col flex-1">
-        <Topbar />
-        <main className="p-6 flex-1">{children}</main>
-      </div>
-    </div>
-  );
+    <SidebarProvider>
+      <AppSidebar />
+      <main className="flex-1 p-6">
+        {/* Optional: a trigger button to toggle sidebar */}
+        <SidebarTrigger />
+        {children}
+      </main>
+    </SidebarProvider>
+  )
 }

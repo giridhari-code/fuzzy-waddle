@@ -1,3 +1,5 @@
+// routes/userRoutes.js (यह फाइल आपके पास पहले से है, इसमें कोई बदलाव नहीं है)
+
 const express = require('express');
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
@@ -45,7 +47,6 @@ router.post('/register', async (req, res) => {
       return res.status(400).json({ message: 'User already exists' });
     }
 
-    // password को सीधे भेजें; यह User मॉडल के pre('save') हुक में हैश हो जाएगा
     const user = new User({ name, email, password, role });
     await user.save();
 
@@ -150,7 +151,6 @@ router.put('/profile', protect, async (req, res) => {
     }
 
     const { name, email, company, phone } = req.body;
-    // केवल उन फ़ील्ड्स को अपडेट करें जो फ्रंटएंड से भेजे गए हैं
     if (name) user.name = name;
     if (email) user.email = email;
     if (company) user.company = company;
@@ -176,14 +176,12 @@ router.put('/profile/change-password', protect, async (req, res) => {
 
     const { oldPassword, newPassword } = req.body;
 
-    // पुराने पासवर्ड की जाँच करें
     const isMatch = await bcrypt.compare(oldPassword, user.password);
     if (!isMatch) {
       return res.status(400).json({ message: 'Invalid old password' });
     }
 
-    // नए पासवर्ड को हैश करें और अपडेट करें
-    user.password = newPassword; // User मॉडल का pre('save') हुक इसे हैश कर देगा
+    user.password = newPassword;
     await user.save();
 
     res.json({ message: 'Password updated successfully' });

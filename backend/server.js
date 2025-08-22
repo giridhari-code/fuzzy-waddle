@@ -17,6 +17,10 @@ const productManagementRoutes = require('./routes/productManagementRoutes');
 const analyticsRoutes = require('./routes/analyticsRoutes');
 const salesRoutes = require('./routes/salesRoutes');
 const inventoryAnalyticsRoutes = require('./routes/inventoryAnalyticsRoutes');
+const notificationRoutes = require('./routes/notificationRoutes');
+
+
+// ... other app.use statements
 
 // Initialize express app
 const app = express();
@@ -45,6 +49,8 @@ app.use('/api/product-management', productManagementRoutes);
 app.use('/api/analytics', analyticsRoutes);
 app.use('/api/sales', salesRoutes);
 app.use('/api/inventoryAnalyticsRoutes', inventoryAnalyticsRoutes);
+app.use('/api/notifications', notificationRoutes);
+
 
 
 

@@ -159,10 +159,6 @@ const SalesDashboard = () => {
       const customersData = await customersRes.json();
       const productsData = await productsRes.json();
 
-      console.log("Dashboard data fetched successfully:", dashboardData);
-      console.log("Customers data fetched successfully:", customersData);
-      console.log("Products data fetched successfully:", productsData);
-
       setDashboardData(dashboardData);
       setCustomers(customersData);
       setProducts(productsData.products);

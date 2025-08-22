@@ -12,24 +12,36 @@ const Navbar = () => {
   const router = useRouter();
 
   useEffect(() => {
-    // Check if token exists in localStorage
     const token = localStorage.getItem("token");
-    setIsLoggedIn(!!token);
+    if (token) {
+      setIsLoggedIn(true);
+    }
   }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
     setIsLoggedIn(false);
-    router.push("/login"); // Redirect to login page
+    router.push("/login");
   };
 
-  const navLinks = [
-    { name: "Home", href: "/" },
-    { name: "Features", href: "#features" },
-    { name: "Pricing", href: "#pricing" },
-    { name: "About", href: "#about" },
-    { name: "Contact", href: "#contact" },
-  ];
+  // ✅ Links depend on login state
+  const navLinks = isLoggedIn
+    ? [
+
+        { name: "Home", href: "/" },
+        { name: "Features", href: "#features" },
+        { name: "Pricing", href: "#pricing" },
+        { name: "About", href: "#about" },
+        { name: "Contact", href: "#contact" },
+        { name: "Dashboard", href: "/dashboard" }, // only after login
+      ]
+    : [
+        { name: "Home", href: "/" },
+        { name: "Features", href: "#features" },
+        { name: "Pricing", href: "#pricing" },
+        { name: "About", href: "#about" },
+        { name: "Contact", href: "#contact" },
+      ];
 
   return (
     <nav className="fixed w-full bg-white shadow-md z-50">
